@@ -1,0 +1,74 @@
+# -------------------------
+# Python / Virtual Envs
+# -------------------------
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# -------------------------
+# Environment variables
+# -------------------------
+.env
+.env.*
+*.env
+
+# -------------------------
+# OS / Editor files
+# -------------------------
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# -------------------------
+# Logs
+# -------------------------
+*.log
+
+# -------------------------
+# Data / Vector DB
+# -------------------------
+data/raw_documents/*
+!data/raw_documents/.gitkeep
+
+qdrant_data/
+storage/
+*.sqlite
+*.db
+
+# -------------------------
+# Model / Cache
+# -------------------------
+.cache/
+.huggingface/
+hf_cache/
+ollama/
+
+# -------------------------
+# Streamlit
+# -------------------------
+.streamlit/secrets.toml
+
+# -------------------------
+# Test / Coverage
+# -------------------------
+.coverage
+htmlcov/
+
+# -------------------------
+# Build artifacts
+# -------------------------
+dist/
+build/
+*.egg-info/
+
+# -------------------------
+# Temporary files
+# -------------------------
+tmp/
+temp/
+*.tmp

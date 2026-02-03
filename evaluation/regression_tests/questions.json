@@ -1,0 +1,58 @@
+[
+  {
+    "id": "vpn_troubleshoot",
+    "question": "VPN is not connecting. What should I do?",
+    "expected_source_contains": "vpn_runbook.txt",
+    "expected_agent": "troubleshooting",
+    "top_k": 2
+  },
+  {
+    "id": "vpn_install",
+    "question": "How do I install the VPN client?",
+    "expected_source_contains": "vpn_installation.txt",
+    "expected_agent": "kb_answer",
+    "top_k": 2
+  },
+  {
+    "id": "vpn_error_691",
+    "question": "What does VPN Error 691 mean?",
+    "expected_source_contains": "vpn_common_errors.txt",
+    "expected_agent": "troubleshooting",
+    "top_k": 2
+  },
+  {
+    "id": "wifi_help",
+    "question": "My WiFi is not working. What should I do?",
+    "expected_source_contains": "wifi_troubleshooting.txt",
+    "expected_agent": "troubleshooting",
+    "top_k": 2
+  },
+  {
+    "id": "password_reset",
+    "question": "How do I reset my account password?",
+    "expected_source_contains": "account_password_reset.txt",
+    "expected_agent": "kb_answer",
+    "top_k": 2
+  },
+  {
+    "id": "annual_leave",
+    "question": "How do I apply for annual leave in the company?",
+    "expected_source_contains": "hr_leave_policy.txt",
+    "expected_agent": "kb_answer",
+    "top_k": 2
+  },
+  {
+    "id": "hardware_request",
+    "question": "How can I request a new laptop or monitor?",
+    "expected_source_contains": "it_hardware_request.txt",
+    "expected_agent": "kb_answer",
+    "top_k": 2
+  },
+  {
+    "id": "unknown_question",
+    "question": "What is the company maternity leave policy?",
+    "expected_source_contains": null,
+    "expected_agent": "clarifier",
+    "top_k": 2
+  }
+]
