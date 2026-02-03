@@ -1,12 +1,12 @@
 {
   "summary": {
-    "timestamp": "2026-02-03T16:04:41.251451Z",
+    "timestamp": "2026-02-03T23:29:18.665939Z",
     "api_url": "http://localhost:8000",
     "total": 8,
-    "passed": 8,
-    "failed": 0,
-    "pass_rate": 1.0,
-    "avg_latency_ms": 5382
+    "passed": 6,
+    "failed": 2,
+    "pass_rate": 0.75,
+    "avg_latency_ms": 1503
   },
   "results": [
     {
@@ -15,23 +15,17 @@
       "expected_source_contains": "vpn_runbook.txt",
       "expected_agent": "troubleshooting",
       "http_status": 200,
-      "latency_ms": 9743,
-      "agent": "troubleshooting",
-      "answer_preview": "Summary: Restart the VPN client to resolve connection issues.\nSteps:\n- Restart the VPN client\n- Check username and password\n- Flush DNS\n- Escalate to Network Team",
-      "sources": [
-        {
-          "file": "vpn_runbook.txt",
-          "score": 0.5747737,
-          "snippet": "VPN Troubleshooting Runbook:\n1. Restart VPN client\n2. Check username and password\n3. Flush DNS\n4. Escalate to Network Team"
-        }
-      ],
+      "latency_ms": 1599,
+      "agent": "clarifier",
+      "answer_preview": "I don\u2019t have enough information to answer accurately.\nCould you clarify the system, environment, or provide more details?",
+      "sources": [],
       "checks": {
         "ok_http": true,
-        "has_sources": true,
-        "source_hit": true,
-        "agent_match": true
+        "has_sources": false,
+        "source_hit": false,
+        "agent_match": false
       },
-      "pass": true
+      "pass": false
     },
     {
       "id": "vpn_install",
@@ -39,9 +33,9 @@
       "expected_source_contains": "vpn_installation.txt",
       "expected_agent": "kb_answer",
       "http_status": 200,
-      "latency_ms": 6916,
+      "latency_ms": 1602,
       "agent": "kb_answer",
-      "answer_preview": "Summary: The user needs to install the VPN client by downloading it from the IT portal and installing it on their device.\n\nSteps:\n- 1. Download the company-approved VPN client from...",
+      "answer_preview": "Summary: Install the company-approved VPN client on your device.\nSteps:\n- Download the company-approved VPN client from the IT portal.\n- Install the client on your device.\n- Open t...",
       "sources": [
         {
           "file": "vpn_installation.txt",
@@ -63,9 +57,9 @@
       "expected_source_contains": "vpn_common_errors.txt",
       "expected_agent": "troubleshooting",
       "http_status": 200,
-      "latency_ms": 4123,
+      "latency_ms": 1548,
       "agent": "troubleshooting",
-      "answer_preview": "Summary: VPN Error 691 indicates authentication failure, requiring users to verify their credentials or reset their account password.\nSteps:\n- Check username/password to ensure acc...",
+      "answer_preview": "Summary: VPN Error 691 refers to authentication failures.\nSteps:\n- Check username/password or reset account password.\n- Verify your account is active.\n- Ensure you\u2019re using the cor...",
       "sources": [
         {
           "file": "vpn_common_errors.txt",
@@ -87,9 +81,9 @@
       "expected_source_contains": "wifi_troubleshooting.txt",
       "expected_agent": "troubleshooting",
       "http_status": 200,
-      "latency_ms": 5161,
+      "latency_ms": 1894,
       "agent": "troubleshooting",
-      "answer_preview": "Summary: To resolve WiFi issues, start by verifying if WiFi is enabled on your device and then follow the steps outlined in the guide.\n\nSteps:\n- Check if WiFi is enabled on the dev...",
+      "answer_preview": "Summary: This guide provides troubleshooting steps for WiFi connectivity issues.\nSteps:\n- Check if WiFi is enabled on the device.\n- Restart the WiFi router.\n- Forget and reconnect ...",
       "sources": [
         {
           "file": "wifi_troubleshooting.txt",
@@ -111,9 +105,9 @@
       "expected_source_contains": "account_password_reset.txt",
       "expected_agent": "kb_answer",
       "http_status": 200,
-      "latency_ms": 4381,
+      "latency_ms": 1616,
       "agent": "kb_answer",
-      "answer_preview": "Summary: To reset your account password, you should click on \u201cForgot Password\u201d on the company account management portal.\n\nSteps:\n- Go to the company account management portal.\n- Cl...",
+      "answer_preview": "Summary: Reset account password.\nSteps:\n- Go to the company account management portal.\n- Click on \"Forgot Password\".\n- Enter your registered company email.\n- Verify using MFA or OT...",
       "sources": [
         {
           "file": "account_password_reset.txt",
@@ -135,9 +129,9 @@
       "expected_source_contains": "hr_leave_policy.txt",
       "expected_agent": "kb_answer",
       "http_status": 200,
-      "latency_ms": 4356,
+      "latency_ms": 1278,
       "agent": "kb_answer",
-      "answer_preview": "Summary: Employees can apply for annual leave via the HR portal (Workday).\nSteps:\n1. Log into Workday\n2. Navigate to Time Off\n3. Select Annual Leave\n4. Submit request for manager a...",
+      "answer_preview": "Summary: Employees can apply for annual leave via the HR portal (Workday).\n\nSteps:\n- Log into Workday\n- Navigate to Time Off\n- Select Annual Leave\n- Submit request for manager appr...",
       "sources": [
         {
           "file": "hr_leave_policy.txt",
@@ -159,9 +153,9 @@
       "expected_source_contains": "it_hardware_request.txt",
       "expected_agent": "kb_answer",
       "http_status": 200,
-      "latency_ms": 4415,
+      "latency_ms": 1316,
       "agent": "kb_answer",
-      "answer_preview": "Summary: Employees can request laptops or monitors via the IT Service Portal.\n\nSteps:\n1. Log into ITSM portal\n2. Create a new hardware request\n3. Select required equipment\n4. Manag...",
+      "answer_preview": "Summary: Employees can request laptops or monitors via the IT Service Portal.\n\nSteps:\n- Log into ITSM portal\n- Create a new hardware request\n- Select required equipment\n- Manager a...",
       "sources": [
         {
           "file": "it_hardware_request.txt",
@@ -183,17 +177,23 @@
       "expected_source_contains": null,
       "expected_agent": "clarifier",
       "http_status": 200,
-      "latency_ms": 3963,
-      "agent": "clarifier",
-      "answer_preview": "I don\u2019t have HR policy details in my knowledge base yet.\nDo you use a specific HR system (e.g., Workday, BambooHR), or would you like to upload the leave policy document?",
-      "sources": [],
+      "latency_ms": 1177,
+      "agent": "kb_answer",
+      "answer_preview": "Summary: Employees can apply for annual leave via the HR portal (Workday).\n\nSteps:\n- Log into Workday\n- Navigate to Time Off\n- Select Annual Leave\n- Submit request for manager appr...",
+      "sources": [
+        {
+          "file": "hr_leave_policy.txt",
+          "score": 0.46672207,
+          "snippet": "Employees can apply for annual leave via the HR portal (Workday).\nSteps:\n1. Log into Workday\n2. Navigate to Time Off\n3. Select Annual Leave\n4. Submit request for manager approval"
+        }
+      ],
       "checks": {
         "ok_http": true,
-        "has_sources": false,
-        "source_hit": true,
-        "agent_match": true
+        "has_sources": true,
+        "source_hit": false,
+        "agent_match": false
       },
-      "pass": true
+      "pass": false
     }
   ]
 }

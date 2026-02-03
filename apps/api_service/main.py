@@ -6,8 +6,9 @@ from typing import Any, Dict, List
 
 from core_ai.rag_pipeline.ingestion.load_documents import load_documents
 from core_ai.rag_pipeline.indexing.index_manager import ingest_documents
-from core_ai.agent_system.orchestrator import run as run_agent
+from core_ai.agent_system.orchestrator import run
 
+# Loads .env from project root (when running from root)
 load_dotenv()
 
 app = FastAPI(title="Enterprise Knowledge Copilot API")
@@ -24,10 +25,39 @@ class AskResponse(BaseModel):
     sources: List[Dict[str, Any]]
 
 
+@app.on_event("startup")
+def warmup():
+    """
+    Warm up heavy components once when the server starts.
+    This avoids loading embedding weights during the first /ask call (CI stability + speed).
+    """
+    from core_ai.rag_pipeline.indexing.embeddings import get_embed_model
+    from core_ai.rag_pipeline.indexing.index_manager import get_index
+
+    get_embed_model()
+    get_index()
+
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready():
+    """
+    Real readiness: verifies embed model + index can be loaded.
+    CI uses this to know when it is safe to run evaluation.
+    """
+    try:
+        from core_ai.rag_pipeline.indexing.embeddings import get_embed_model
+        from core_ai.rag_pipeline.indexing.index_manager import get_index
+
+        get_embed_model()
+        get_index()
+        return {"ready": True}
+    except Exception as e:
+        return {"ready": False, "error": str(e)}
 
 
 @app.post("/ingest")
@@ -36,7 +66,10 @@ def ingest():
     docs = load_documents(data_dir)
 
     if not docs:
-        return {"message": f"No documents found in {data_dir}", "documents": 0}
+        return {
+            "message": f"No documents found in {data_dir}",
+            "documents": 0,
+        }
 
     result = ingest_documents(docs)
     return {"message": "Ingestion complete", **result}
@@ -44,21 +77,9 @@ def ingest():
 
 @app.post("/ask", response_model=AskResponse)
 def ask(req: AskRequest):
-    result = run_agent(req.question)
-    return {
-        "agent": result.get("agent", "unknown"),
-        "answer": result.get("answer", ""),
-        "sources": result.get("sources", []),
-    }
-
-@app.get("/ready")
-def ready():
     """
-    True readiness: checks we can load index + embeddings client.
+    Agent router endpoint:
+    - chooses kb_answer / troubleshooting / ticket_writer / clarifier
+    - returns {agent, answer, sources}
     """
-    try:
-        from core_ai.rag_pipeline.indexing.index_manager import get_index
-        get_index()
-        return {"ready": True}
-    except Exception as e:
-        return {"ready": False, "error": str(e)}
+    return run(req.question)

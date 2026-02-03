@@ -1,4 +1,6 @@
-# core_ai/agent_system/orchestrator.py
+from __future__ import annotations
+
+from typing import Dict, Any, List, Optional
 
 from core_ai.agent_system.agents.kb_answer_agent import KBAnswerAgent
 from core_ai.agent_system.agents.troubleshooting_agent import TroubleshootingAgent
@@ -6,103 +8,126 @@ from core_ai.agent_system.agents.ticket_writer_agent import TicketWriterAgent
 from core_ai.agent_system.agents.clarifier_agent import ClarifierAgent
 
 
-# Instantiate agents once (cheap + reusable)
 kb_agent = KBAnswerAgent()
 troubleshoot_agent = TroubleshootingAgent()
 ticket_agent = TicketWriterAgent()
 clarifier_agent = ClarifierAgent()
 
+# If score is below this, treat retrieval as irrelevant / weak match
+MIN_SOURCE_SCORE = 0.30  # increase to stop random matches (0.25–0.35 works well)
+
 
 def choose_agent(question: str):
     """
-    Very simple router based on keywords.
+    Router rules:
+    - Ticket writing keywords -> ticket agent
+    - VPN connect issues or error keywords -> troubleshooting agent
+    - Otherwise -> KB agent
     """
-    q = question.lower()
+    q = (question or "").lower()
 
-    # Ticket writing / ITSM
-    if any(k in q for k in ["ticket", "jira", "itsm"]):
+    # ITSM / ticket creation
+    if any(k in q for k in ["ticket", "jira", "itsm", "servicenow", "service now"]):
         return ticket_agent
 
-    # Troubleshooting / incident-like language
-    if any(
+    # VPN troubleshooting should ALWAYS go to troubleshooting
+    if "vpn" in q and any(
         k in q
         for k in [
-            "troubleshoot",
-            "not working",
-            "error",
-            "issue",
-            "failed",
-            "fails",
-            "cannot connect",
-            "can't connect",
             "not connecting",
+            "can't connect",
+            "cannot connect",
+            "not connect",
+            "fails",
+            "failed",
+            "disconnect",
+            "timeout",
+            "stuck",
         ]
     ):
         return troubleshoot_agent
 
-    # Default: knowledge base answer
+    # Generic troubleshooting intent
+    if any(k in q for k in ["troubleshoot", "not working", "error", "issue", "problem"]):
+        return troubleshoot_agent
+
     return kb_agent
 
 
-def low_confidence(question: str, result: dict) -> bool:
-    """
-    Decide when to fall back to ClarifierAgent.
+def _normalize_sources(sources: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+    if not sources:
+        return []
 
-    Rules:
-    - If no sources => low confidence
-    - If top score is very low => low confidence
-    - If question is clearly VPN/WiFi but the top source doesn't mention that domain => low confidence
-    - If question contains maternity but top source doesn't mention maternity => low confidence
-    """
-    sources = result.get("sources") or []
+    out: List[Dict[str, Any]] = []
+    for s in sources:
+        if not isinstance(s, dict):
+            continue
+        out.append(
+            {
+                "file": s.get("file", "unknown"),
+                "score": s.get("score", None),
+                "snippet": s.get("snippet", ""),
+            }
+        )
+    return out
+
+
+def _max_score(sources: List[Dict[str, Any]]) -> float:
+    scores = [s.get("score") for s in sources]
+    numeric_scores = [float(x) for x in scores if isinstance(x, (int, float))]
+    return max(numeric_scores) if numeric_scores else 0.0
+
+
+def low_confidence(question: str, result: Dict[str, Any]) -> bool:
+    answer = (result.get("answer") or "").lower()
+    sources = _normalize_sources(result.get("sources"))
+
+    # 1. No sources → low confidence
     if not sources:
         return True
 
-    top = sources[0]
-    score = top.get("score", None)
-    top_file = (top.get("file") or "").lower()
-    top_snip = (top.get("snippet") or "").lower()
-
-    # Score gate (not too strict, otherwise valid results get blocked)
-    try:
-        if score is None or float(score) < 0.15:
-            return True
-    except Exception:
+    # 2. Low similarity score → low confidence
+    if _max_score(sources) < MIN_SOURCE_SCORE:
         return True
 
-    q = question.lower()
+    # 3. Explicit "not found"
+    if "not found in knowledge base" in answer:
+        return True
 
-    # Domain gating (prevents wrong-domain matches)
-    if "vpn" in q:
-        if ("vpn" not in top_file) and ("vpn" not in top_snip):
-            return True
+    # 4. NEW: semantic relevance guard
+    q_tokens = set(
+        w for w in question.lower().split()
+        if len(w) > 3  # ignore short noise words
+    )
 
-    if "wifi" in q or "wi-fi" in q:
-        if ("wifi" not in top_file) and ("wi-fi" not in top_file) and ("wifi" not in top_snip) and ("wi-fi" not in top_snip):
-            return True
+    combined_text = " ".join(
+        (s.get("snippet") or "").lower() for s in sources
+    )
 
-    # HR-specific: "maternity" must be present, otherwise treat as not found
-    if "maternity" in q:
-        if ("maternity" not in top_file) and ("maternity" not in top_snip):
-            return True
+    # If NONE of the meaningful question words appear in sources → irrelevant hit
+    if not any(token in combined_text for token in q_tokens):
+        return True
 
     return False
 
-
-def run(question: str) -> dict:
-    """
-    Main entry point called by FastAPI.
-    Chooses an agent, runs it, then applies confidence checks.
-    """
+def run(question: str) -> Dict[str, Any]:
     agent = choose_agent(question)
-    result = agent.run(question)
+    result = agent.run(question) or {}
+    result["sources"] = _normalize_sources(result.get("sources"))
 
-    # If retrieval seems weak or wrong-domain, ask clarifying question instead of hallucinating
+    # Relevance gate: if KB returns weak/irrelevant retrieval -> clarifier
     if low_confidence(question, result):
-        clarified = clarifier_agent.run(question)
+        clarified = clarifier_agent.run(question) or {}
         clarified["agent"] = clarifier_agent.name
-        return clarified
+        clarified["sources"] = _normalize_sources(clarified.get("sources"))
+        return {
+            "agent": clarified["agent"],
+            "answer": clarified.get("answer", ""),
+            "sources": clarified["sources"],
+        }
 
-    # Attach agent name for UI display
-    result["agent"] = agent.name
-    return result
+    return {
+        "agent": agent.name,
+        "answer": result.get("answer", ""),
+        "sources": result.get("sources", []),
+    }
