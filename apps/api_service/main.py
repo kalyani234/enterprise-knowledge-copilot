@@ -50,3 +50,15 @@ def ask(req: AskRequest):
         "answer": result.get("answer", ""),
         "sources": result.get("sources", []),
     }
+
+@app.get("/ready")
+def ready():
+    """
+    True readiness: checks we can load index + embeddings client.
+    """
+    try:
+        from core_ai.rag_pipeline.indexing.index_manager import get_index
+        get_index()
+        return {"ready": True}
+    except Exception as e:
+        return {"ready": False, "error": str(e)}

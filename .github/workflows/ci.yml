@@ -66,18 +66,20 @@ jobs:
           nohup uvicorn apps.api_service.main:app --host 127.0.0.1 --port 8000 > uvicorn.log 2>&1 &
           echo $! > uvicorn.pid
 
-      - name: Wait for API health
+      - name: Wait for API to be ready
         run: |
-          for i in {1..45}; do
-            if curl -s http://127.0.0.1:8000/health | grep -q "ok"; then
-              echo "API is up!"
-              exit 0
+          for i in {1..90}; do
+            out=$(curl -s http://127.0.0.1:8000/ready || true)
+            echo "ready check: $out"
+            if echo "$out" | grep -q '"ready": true'; then
+                echo "API is ready!"
+                exit 0
             fi
-            echo "Waiting for API..."
+            echo "Waiting for API to be ready..."
             sleep 2
           done
 
-          echo "API failed to start. Printing logs:"
+          echo "API did not become ready in time. Printing logs:"
           cat uvicorn.log || true
           exit 1
 
