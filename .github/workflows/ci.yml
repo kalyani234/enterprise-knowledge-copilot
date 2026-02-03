@@ -2,22 +2,37 @@ name: Enterprise Knowledge Copilot CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
 
     env:
+      # Use deterministic LLM in CI (no Ollama)
       MOCK_LLM: "true"
+      # If your code reads these, they keep things consistent
+      QDRANT_URL: "http://localhost:6333"
+      API_URL: "http://127.0.0.1:8000"
+
+    services:
+      qdrant:
+        image: qdrant/qdrant:v1.16.3
+        ports:
+          - 6333:6333
+        options: >-
+          --health-cmd="wget -qO- http://localhost:6333/ | grep -qi qdrant"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=20
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -33,10 +48,39 @@ jobs:
         run: |
           ruff check .
 
-      - name: Run unit tests
+      - name: Run unit tests (if any)
         run: |
           pytest -q || true
 
-      - name: Run evaluation (mock LLM)
+      - name: Start API (background)
+        run: |
+          nohup uvicorn apps.api_service.main:app --host 127.0.0.1 --port 8000 > uvicorn.log 2>&1 &
+          echo $! > uvicorn.pid
+
+      - name: Wait for API health
+        run: |
+          for i in {1..45}; do
+            if curl -s http://127.0.0.1:8000/health | grep -q "ok"; then
+              echo "API is up!"
+              exit 0
+            fi
+            echo "Waiting for API..."
+            sleep 2
+          done
+
+          echo "API failed to start. Printing logs:"
+          cat uvicorn.log || true
+          exit 1
+
+      - name: Run evaluation (regression)
         run: |
           python evaluation/run_eval.py
+
+      - name: Stop API and show logs (always)
+        if: always()
+        run: |
+          if [ -f uvicorn.pid ]; then
+            kill $(cat uvicorn.pid) || true
+          fi
+          echo "---- uvicorn.log ----"
+          cat uvicorn.log || true
