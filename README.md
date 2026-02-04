@@ -18,15 +18,43 @@ AI-powered internal assistant that delivers fast, accurate, hallucination-free a
 2. Feed only retrieved context to the LLM
 3. Generate precise, source-backed answer
 
-### Agent Routing
-Orchestrator selects the right agent:
+## Technologies
 
-| Agent                  | Purpose                              |
-|------------------------|--------------------------------------|
-| KBAnswerAgent          | Factual document-based answers       |
-| TroubleshootingAgent   | Step-by-step problem resolution      |
-| TicketWriterAgent      | Structured IT ticket creation        |
-| ClarifierAgent         | Ask for clarification when needed    |
+| Technology              | Category              | Purpose                                                                 |
+|-------------------------|-----------------------|-------------------------------------------------------------------------|
+| Python 3.11             | Programming Language  | Core language for backend, AI pipeline, agents, and evaluation         |
+| FastAPI                 | Web Framework         | Exposes REST APIs for ingestion and question answering                  |
+| Streamlit               | Frontend Framework    | Interactive chat-based UI for users                                     |
+| RAG                     | AI Architecture       | Ensures LLM answers are grounded in enterprise documents                |
+| Vector Search           | Information Retrieval | Enables semantic similarity-based document search                       |
+| Large Language Models   | AI Models             | Generate responses based on retrieved context                           |
+| Docker                  | Containerization      | Ensures consistent runtime across environments                          |
+| Git                     | Version Control       | Tracks source code and supports collaboration                           |
+
+## 🛠️ Tools
+
+| Tool                | Category             | Usage in Project                                          |
+|---------------------|----------------------|-----------------------------------------------------------|
+| LlamaIndex          | RAG Framework        | Document ingestion, indexing, retrieval, response synthesis |
+| Qdrant              | Vector Database      | Stores and queries document embeddings                    |
+| Sentence-Transformers | Embedding Model    | Converts documents into dense vector embeddings           |
+| Ollama              | Local LLM Runtime    | Runs LLMs locally without cloud dependency                |
+| Gemma / Qwen        | Language Models      | Generate answers from enterprise knowledge                |
+| Uvicorn             | ASGI Server          | Runs FastAPI application efficiently                      |
+| Requests            | HTTP Client          | Communicates between UI and backend                       |
+| Pytest              | Testing Framework    | Executes automated test cases                             |
+| Ruff                | Linter               | Enforces code quality and consistency                     |
+| dotenv              | Configuration        | Loads environment variables securely                      |
+
+## 🤖 Agents
+
+| Agent Name            | Type              | Responsibility                                          |
+|-----------------------|-------------------|---------------------------------------------------------|
+| KB Answer Agent       | Knowledge Agent   | Answers factual questions using enterprise documents    |
+| Troubleshooting Agent | Diagnostic Agent  | Provides step-by-step resolution for issues             |
+| Ticket Writer Agent   | Automation Agent  | Converts issues into ITSM/JIRA-style tickets            |
+| Clarifier Agent       | Safety Agent      | Requests clarification when confidence is low           |
+| Agent Orchestrator    | Control Agent     | Routes questions to the appropriate agent               ||
 
 ### Safety Guardrails
 Low confidence (similarity score, relevance, LLM signals) → switches to ClarifierAgent instead of guessing.
@@ -118,3 +146,4 @@ python evaluation/run_eval.py
 <img width="900" height="196" alt="Screenshot 2026-02-04 at 6 48 04 PM" src="https://github.com/user-attachments/assets/de2e71f7-8500-4cfa-b86d-c9a3341d1b41" />
 
 - Enterprise Knowledge Copilot: Production-ready, secure, local AI assistant built for accuracy and trust in real enterprise environments.
+
