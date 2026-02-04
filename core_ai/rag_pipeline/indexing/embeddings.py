@@ -1,14 +1,11 @@
-import os
-from functools import lru_cache
-
+from llama_index.core import Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 
-@lru_cache(maxsize=1)
-def get_embed_model() -> HuggingFaceEmbedding:
+def setup_local_embeddings() -> None:
     """
-    Loads the embedding model ONCE per process (singleton).
-    Without this, HuggingFace weights may load repeatedly -> slow + CI flakes.
+    Local embeddings (no OpenAI key needed).
     """
-    model_name = os.getenv("EMBED_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
-    return HuggingFaceEmbedding(model_name=model_name)
+    Settings.embed_model = HuggingFaceEmbedding(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )

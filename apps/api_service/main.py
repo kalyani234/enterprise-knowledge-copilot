@@ -25,19 +25,6 @@ class AskResponse(BaseModel):
     sources: List[Dict[str, Any]]
 
 
-@app.on_event("startup")
-def warmup():
-    """
-    Warm up heavy components once when the server starts.
-    This avoids loading embedding weights during the first /ask call (CI stability + speed).
-    """
-    from core_ai.rag_pipeline.indexing.embeddings import get_embed_model
-    from core_ai.rag_pipeline.indexing.index_manager import get_index
-
-    get_embed_model()
-    get_index()
-
-
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -83,3 +70,4 @@ def ask(req: AskRequest):
     - returns {agent, answer, sources}
     """
     return run(req.question)
+

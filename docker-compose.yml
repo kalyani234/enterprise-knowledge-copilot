@@ -1,7 +1,40 @@
 services:
   qdrant:
-    image: qdrant/qdrant:latest
+    image: qdrant/qdrant:v1.16.3
+    container_name: qdrant
     ports:
       - "6333:6333"
     volumes:
-      - ./infrastructure/docker/qdrant_storage:/qdrant/storage
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:6333/"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api_service/Dockerfile
+    container_name: ekc_api
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      # IMPORTANT: inside docker, qdrant is reachable via "http://qdrant:6333"
+      QDRANT_URL: "http://qdrant:6333"
+      QDRANT_COLLECTION: "enterprise_kb"
+      DATA_DIR: "/app/data/raw_documents"
+
+      # If you use Ollama on your laptop host:
+      # On Mac/Windows Docker Desktop, host.docker.internal works.
+      OLLAMA_BASE_URL: "http://host.docker.internal:11434"
+      OLLAMA_MODEL: "gemma3:1b"
+    volumes:
+      # so you can drop docs locally and ingest inside container
+      - ./data:/app/data
+
+volumes:
+  qdrant_data:
