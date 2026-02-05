@@ -69,6 +69,10 @@ Low confidence (similarity score, relevance, LLM signals) → switches to Clarif
   - Ollama local LLM
   - Modular agent system + RAG
 
+### api
+<img width="1000" height="529" alt="Screenshot 2026-02-02 at 6 21 53 PM" src="https://github.com/user-attachments/assets/a7c2910f-147f-4533-8d4f-d0f1d20a3cae" />
+
+
 ### Ingestion
 Drop files in `data/raw_documents/` → `/ingest` → chunk → embed → index in Qdrant
 <img width="1039" height="589" alt="Screenshot 2026-02-04 at 6 49 15 PM" src="https://github.com/user-attachments/assets/2368f4ef-46f8-420f-a817-d0c97e9723d2" />
@@ -146,4 +150,5 @@ python evaluation/run_eval.py
 <img width="900" height="196" alt="Screenshot 2026-02-04 at 6 48 04 PM" src="https://github.com/user-attachments/assets/de2e71f7-8500-4cfa-b86d-c9a3341d1b41" />
 
 - Enterprise Knowledge Copilot: Production-ready, secure, local AI assistant built for accuracy and trust in real enterprise environments.
+
 
