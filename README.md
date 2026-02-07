@@ -79,6 +79,7 @@ Drop files in `data/raw_documents/` → `/ingest` → chunk → embed → index 
 
 ### Related Questions
 <img width="821" height="597" alt="Screenshot 2026-02-04 at 6 49 26 PM" src="https://github.com/user-attachments/assets/967c204f-f420-482b-b3ef-b79adb4b723d" />
+
 ### Unrelated questions 
 <img width="862" height="457" alt="Screenshot 2026-02-04 at 6 49 37 PM" src="https://github.com/user-attachments/assets/47bd015d-c1fd-4cb9-8f9e-0616bfe9977d" />
 
@@ -150,5 +151,6 @@ python evaluation/run_eval.py
 <img width="900" height="196" alt="Screenshot 2026-02-04 at 6 48 04 PM" src="https://github.com/user-attachments/assets/de2e71f7-8500-4cfa-b86d-c9a3341d1b41" />
 
 - Enterprise Knowledge Copilot: Production-ready, secure, local AI assistant built for accuracy and trust in real enterprise environments.
+
 
 
